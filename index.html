@@ -3,30 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seesaw Simulation</title>
-    <link rel="stylesheet" href="style-1.css">
+    <title>Electric Birthday Celebration</title>
+    <style>
+        body {
+            background: MidnightBlue;
+            color: #fff;
+            font-family: 'Comic Sans MS', cursive;
+            color: Yellow; 
+            font-size: 2rem; 
+            text-align: center;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        h1 {
+            font-family: 'Comic Sans MS', cursive; /* Set a playful font or any desired font */
+            color: Yellow; 
+            font-size: 3rem; 
+            margin-top: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .controls {
+            position: fixed; /* Fixed position ensures it stays visible */
+            bottom: 100px; /* Positioned at the bottom */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15; /* Higher z-index ensures it remains above other elements */
+            background: rgba(0, 0, 0, 0.8); /* Slightly transparent background */
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .controls button {
+            background: OrangeRed;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+            margin: 0 0px;
+        }
+        .controls button:hover {
+            background: Red;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Seesaw Simulator</h1>
+    <canvas id="canvas"></canvas>
+    <h2>Happy Birthday, Igor!</h2>
+    <div class="cake" style="font-size: 7rem;">🎂🎁🎉🎈</div>
+    <p class="message" style="font-size: 2.5rem; color: GreenYellow;">Light up your special day!</p>
 
-        <div class="content-area">
-            <div id="weight-bin">
-                <h4>WEIGHTS</h4>
-            </div>
-
-            <div id="seesaw-area">
-                <div id="seesaw">
-                    <div id="beam">
-                        <div id="pivot"></div>
-                        <div id="tray-left" class="tray">Tray Left</div>
-                        <div id="tray-right" class="tray">Tray Right</div>
-                    </div>
-                    <button id="reset-button">RESET</button>  </div>
-            </div>
-        </div>
+    <!-- Music controls -->
+    <div class="controls">
+        <button id="musicControlBtn">PLAY 🎵✨</button>
     </div>
 
-    <script src="script-1.js"></script>
+    <!-- Background music -->
+    <audio id="birthdayMusic" loop>
+        <source src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth * 0.5;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const confetti = [];
+        const colors = ['#FF5733', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
+
+        class Particle {
+            constructor(x, y, color, speed, angle) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.speed = speed;
+                this.angle = angle;
+                this.radius = Math.random() * 4 + 1;
+                this.life = Math.random() * 50 + 50;
+            }
+
+            update() {
+                this.x += this.speed * Math.cos(this.angle);
+                this.y += this.speed * Math.sin(this.angle);
+                this.life--;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        class Confetti {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = Math.random() * 5 + 5;
+                this.speedY = Math.random() * -4 - 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.life = 100;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.rect(this.x, this.y, this.size, this.size);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        function createFireworksAndConfetti() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height / 2; // Keep effects in the top half
+            for (let i = 0; i < 100; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color, speed, angle));
+            }
+
+            for (let i = 0; i < 50; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                confetti.push(new Confetti(x, y, color));
+            }
+        }
+
+        function updateAnimations() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update particles (fireworks)
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                particle.update();
+                particle.draw();
+            }
+
+            // Update confetti
+            for (let i = confetti.length - 1; i >= 0; i--) {
+                const c = confetti[i];
+                if (c.life <= 0) {
+                    confetti.splice(i, 1);
+                    continue;
+                }
+                c.update();
+                c.draw();
+            }
+        }
+
+        function loop() {
+            updateAnimations();
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+
+        // Celebration trigger
+
+        const music = document.getElementById('birthdayMusic');
+        const musicControlBtn = document.getElementById('musicControlBtn');
+
+        // Toggle Play/Pause
+        musicControlBtn.addEventListener('click', () => {
+            if (music.paused) {
+                music.play();
+                musicControlBtn.textContent = "PAUSE ⏸️"; // Change button to Pause
+                createFireworksAndConfetti(); // Launch fireworks and confetti
+                setInterval(createFireworksAndConfetti, 1000); // Repeat interval
+            } else {
+                music.pause();
+                musicControlBtn.textContent = "PLAY 🎵"; // Change button to Play
+            }
+        });
+    </script>
 </body>
 </html>
