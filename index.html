@@ -3,67 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electric Celebration</title>
+    <title>Electric Birthday Celebration</title>
     <style>
         body {
-            background: MidnightBlue;
-            color: #fff;
-            font-family: 'Comic Sans MS', cursive;
-            color: Yellow; 
+            background: rgb(0, 70, 77);
+            font-family: 'Verdana', sans-serif;
+            color: #ffc107; 
             font-size: 2rem; 
             text-align: center;
             margin: 0;
-            overflow: hidden; /* Prevent scrolling */
         }
         #canvas {
             position: absolute;
             top: 0;
             left: 0;
         }
-        h1 {
-            font-family: 'Comic Sans MS', cursive; /* Set a playful font or any desired font */
-            color: Yellow; 
-            font-size: 3rem; 
-            margin-top: 20px;
+        .frame {
             position: relative;
-            z-index: 10;
+            z-index: -1; /* Place the image behind other content */
+        }
+        img {            
+            width: 40%; /* Take up 100% of the viewport width */
+            height: auto; /* Take up 100% of the viewport height */
         }
         .controls {
             position: fixed; /* Fixed position ensures it stays visible */
-            bottom: 100px; /* Positioned at the bottom */
             left: 50%;
             transform: translateX(-50%);
             z-index: 15; /* Higher z-index ensures it remains above other elements */
-            background: rgba(0, 0, 0, 0.8); /* Slightly transparent background */
-            padding: 10px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.0); /* Slightly transparent background */
+            padding: 5px;
+            border-radius: 15px;
         }
         .controls button {
-            background: OrangeRed;
+            background: rgb(255, 60, 40);
             color: #fff;
-            border: none;
+            border: none;            
             padding: 10px 20px;
-            font-family: 'Comic Sans MS', cursive;
+            font-family: 'Verdana', sans-serif;
             font-size: 1.2rem;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 20px;
             transition: background 0.3s;
             margin: 0 0px;
+            width: 140px;
+            height: 35px;
+            display: flex; /* Make the button a flex container */
+            justify-content: center; /* Center text horizontally */
+            align-items: center; /* Center text vertically */
         }
         .controls button:hover {
-            background: Red;
+            background: rgb(210, 24, 45);
         }
+        @media (max-width: 600px) {
+            img {            
+                width: 100%; /* Take up 100% of the viewport width */
+                height: auto; /* Take up 100% of the viewport height */
+                z-index: -1; /* Place the image behind other content */
+            }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <h2>Be happy!</h2>
-    <div class="cake" style="font-size: 7rem;">🎂🎁🎉🎈</div>
-    <p class="message" style="font-size: 2.5rem; color: GreenYellow;">Light up your special day!</p>
-
+    <p></p>
+    <div class="frame">
+        <img src="dande.jpg" alt="Dandelion!"> 
+    </div>
+    <p></p>
+    <p></p>
     <!-- Music controls -->
     <div class="controls">
-        <button id="musicControlBtn">PLAY 🎵✨</button>
+        <button id="musicControlBtn"> PLAY 🎵 </button>
     </div>
 
     <!-- Background music -->
@@ -75,112 +85,188 @@
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth * 0.5;
-        canvas.height = window.innerHeight;
 
-        const particles = [];
-        const confetti = [];
-        const colors = ['#FF5733', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;  // Set to full width
+            canvas.height = window.innerHeight; // Set to full height
+        }
 
-        class Particle {
-            constructor(x, y, color, speed, angle) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.speed = speed;
-                this.angle = angle;
-                this.radius = Math.random() * 4 + 1;
-                this.life = Math.random() * 50 + 50;
-            }
-
-            update() {
-                this.x += this.speed * Math.cos(this.angle);
-                this.y += this.speed * Math.sin(this.angle);
-                this.life--;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
+        function calculateSixPositions() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.width < 600 ? canvas.height * 0.35 : canvas.height * 0.45;
+            const separation = canvas.width < 600 ? 16 : 25; // Different separation for small screens
+            return {
+                x1: centerX - separation,
+                x2: centerX + separation,
+                y: centerY
+            };
+        }
+        function calculateFontSize() {
+            if (canvas.width < 600) {
+                return 45; // Smaller font size for smaller screens 
+            } else {
+                return 60; // Larger font size for larger screens
             }
         }
 
-        class Confetti {
+        resizeCanvas(); // Initial resize
+        calculateFontSize();// Initial font size
+        calculateSixPositions(); // initial positions
+        window.addEventListener('resize', resizeCanvas); // Resize on window change
+        window.addEventListener('resize', calculateFontSize); //Resize on font change
+        window.addEventListener('resize', calculateSixPositions); //Resize on positions change
+    
+        const tickerTapes = [];
+        const colors = ['#FF5733', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'];
+        let isAnimating = false; // Flag to control animation
+        let animationIntervalId; // Variable to store the interval ID
+        let isNumberAnimating = false; // Flag to control number animation
+        let isNumberExisting = false; // Flag to control number creation
+        //TickerTapes properties
+        const tickerTapeDensity = 25; // Number of ticker tapes
+        const tickerTapeMinWidth = 2;
+        const tickerTapeMaxWidth = 5;
+        const tickerTapeMinHeight = 2;
+        const tickerTapeMaxHeight = 6;
+        const tickerTapeMinSpeed = 1;
+        const tickerTapeMaxSpeed = 3;
+        interval = 2500; // Initial repetition interval for creating TickerTapes
+        const numbers = []; // Array to store the number objects
+        //gravity = 0.01; // Gravity constant for falling effect (set upon createNumber())
+        const bounceDamping = 1.0; // Energy loss multiplier on each bounce
+
+        class TickerTape {
             constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
                 this.color = color;
-                this.size = Math.random() * 5 + 5;
-                this.speedY = Math.random() * -4 - 2;
-                this.speedX = Math.random() * 2 - 1;
+                this.width = Math.random() * (tickerTapeMaxWidth - tickerTapeMinWidth) + tickerTapeMinWidth; // Longer tape
+                this.height = Math.random() * (tickerTapeMaxHeight - tickerTapeMinHeight) + tickerTapeMinHeight;
+                this.speedY = Math.random() * (tickerTapeMaxSpeed - tickerTapeMinSpeed) + tickerTapeMinSpeed; // Slower falling speed
+                this.speedX = Math.random() * 1 - 0.5; // Small random horizontal movement
                 this.life = 100;
             }
 
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                this.life--;
+                //reset tape position
+                if(this.y > canvas.height){
+                    this.y = 0;
+                    this.x = Math.random() * canvas.width;
+                }
             }
 
             draw() {
                 ctx.beginPath();
-                ctx.rect(this.x, this.y, this.size, this.size);
+                ctx.rect(this.x, this.y, this.width, this.height); // Draw as a rectangle
                 ctx.fillStyle = this.color;
                 ctx.fill();
             }
         }
 
-        function createFireworksAndConfetti() {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height / 2; // Keep effects in the top half
-            for (let i = 0; i < 100; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 4 + 2;
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                particles.push(new Particle(x, y, color, speed, angle));
+        class Number {
+            constructor(x, y, digit, rotationSpeed, gravity, color, fontSize) {
+                this.x = x;
+                this.y = y;
+                this.digit = digit;
+                this.color = color;
+                this.fontSize = fontSize;
+                this.speedY = 0; // Initial vertical speed
+                this.speedX = Math.random() * 2 - 1; // Small initial horizontal speed
+                this.rotation = 0;                
+                this.rotationSpeed = rotationSpeed; // Rotation speed
+                this.gravity = gravity;
+                this.isFalling = true; // Starts falling
+                this.isRotating = true; // Starts rotating 
             }
 
-            for (let i = 0; i < 50; i++) {
+            update() {
+                if (this.isFalling) {
+                    this.speedY += this.gravity; // Apply gravity
+                    this.y += this.speedY; // Move the number
+                    this.x += this.speedX; // Move the number
+                    this.rotation += this.rotationSpeed;
+
+                    // Check for bounce
+                    if (this.y + this.fontSize / 2 > canvas.height) {
+                        this.speedY = -this.speedY * bounceDamping; // Reverse and reduce speed
+                        this.y = canvas.height - this.fontSize / 2; // Ensure the number is on the ground
+                        // Check if bouncing is very small
+                        if (Math.abs(this.speedY) < 0.5) {
+                            this.isFalling = false;
+                            //this.isRotating = true;
+                        }
+                    }
+                } else if (this.isRotating) {
+                    this.rotation += this.rotationSpeed; // Rotate
+                }
+
+                // Wrap-around logic:
+                if (this.x + this.fontSize/2 < 0) { 
+                    this.x = canvas.width + this.fontSize/2; // Move to the right
+                } else if (this.x - this.fontSize/2 > canvas.width) {
+                    this.x = 0 - this.fontSize/2; // Move to the left
+                }
+
+                if (this.y + this.fontSize/2 < 0) {
+                    this.y = canvas.height + this.fontSize/2; // Move to the bottom
+                } else if (this.y - this.fontSize/2 > canvas.height) {
+                    this.y = 0 - this.fontSize/2; // Move to the top
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.font = `${this.fontSize}px Georgia`;
+                ctx.fillStyle = this.color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.digit, 0, 0);
+                ctx.restore();
+            }
+        }
+        
+        function createNumber(x, y, digit, rotationSpeed, gravity, color, fontSize) {
+            numbers.push(new Number(x, y, digit, rotationSpeed, gravity, color, fontSize));
+        }
+
+        function createTickerTapes() {
+            for (let i = 0; i < tickerTapeDensity; i++) {
+                const x = Math.random() * canvas.width;
+                const y = 0; // Start at the top
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                confetti.push(new Confetti(x, y, color));
+                tickerTapes.push(new TickerTape(x, y, color));
             }
         }
 
-        function updateAnimations() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Update particles (fireworks)
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const particle = particles[i];
-                if (particle.life <= 0) {
-                    particles.splice(i, 1);
-                    continue;
-                }
-                particle.update();
-                particle.draw();
-            }
-
-            // Update confetti
-            for (let i = confetti.length - 1; i >= 0; i--) {
-                const c = confetti[i];
-                if (c.life <= 0) {
-                    confetti.splice(i, 1);
-                    continue;
-                }
+        function updateTickerTapes() {
+            // Update ticker tapes
+            for (let i = tickerTapes.length - 1; i >= 0; i--) {
+                const c = tickerTapes[i];
                 c.update();
                 c.draw();
             }
         }
 
-        function loop() {
-            updateAnimations();
-            requestAnimationFrame(loop);
+        function updateNumbers() {
+            for (let i = 0; i < numbers.length; i++) {
+                numbers[i].update();
+                numbers[i].draw();
+            }
         }
 
-        loop();
-
+        function tickerTapeLoop() {
+            if (isAnimating) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                updateTickerTapes();
+                updateNumbers();
+              requestAnimationFrame(tickerTapeLoop);
+            }
+        }
+        
         // Celebration trigger
 
         const music = document.getElementById('birthdayMusic');
@@ -190,12 +276,29 @@
         musicControlBtn.addEventListener('click', () => {
             if (music.paused) {
                 music.play();
-                musicControlBtn.textContent = "PAUSE ⏸️"; // Change button to Pause
-                createFireworksAndConfetti(); // Launch fireworks and confetti
-                setInterval(createFireworksAndConfetti, 1000); // Repeat interval
+                musicControlBtn.textContent = "PAUSE 🎵";
+                createTickerTapes();
+                isAnimating = true;
+                isNumberAnimating = true;
+                const fontSize = calculateFontSize();
+                const positions = calculateSixPositions();
+                if (!isNumberExisting) {
+                    createNumber(positions.x1, 0, '6', 0.02, 0.01, 'MediumAquaMarine', fontSize);
+                    createNumber(positions.x2, 0, '9', 0.022, 0.012, 'hotpink', fontSize);
+                    //createNumber(positions.x1, 0, '6', 'rgb(235,77,59)', fontSize);
+                    //createNumber(positions.x2, 0, '9', 'rgb(235,77,59)', fontSize);
+                    isNumberExisting = true;
+                }
+                tickerTapeLoop();                
+                animationIntervalId = setInterval(createTickerTapes, interval); //create tickertapes every interval in msecs
+                interval += 2000;
             } else {
                 music.pause();
-                musicControlBtn.textContent = "PLAY 🎵"; // Change button to Play
+                musicControlBtn.textContent = " PLAY 🎵 ";
+                isAnimating = false;
+                isNumberAnimating = false;
+                clearInterval(animationIntervalId);
+                //numbers.length = 0; // Remove numbers
             }
         });
     </script>
