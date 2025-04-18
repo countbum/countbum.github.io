@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <style>
+        <style>
         body {
             background: rgb(0, 70, 77);
             font-family: 'Verdana', sans-serif;
@@ -55,12 +54,19 @@
         .controls button:hover {
             background: rgb(210, 24, 45);
         }
+        /* Styles for Tablets (600px - 1024px) */
+        @media (min-width: 600px) and (max-width: 1024px) {
+            img {            
+                width: 70%; /* Larger width for tablets */
+            }
+        }
+        /* Styles for Mobile Phones (max-width: 600px) */
         @media (max-width: 600px) {
             img {            
-                width: 100%; /* Take up 100% of the viewport width */
-                height: auto; /* Take up 100% of the viewport height */
-                z-index: -1; /* Place the image behind other content */
+                width: 100%; /* Full width for mobile */
+                z-index: -1; 
             }
+        }
     </style>
 </head>
 <body>
@@ -93,8 +99,10 @@
 
         function calculateSixPositions() {
             const centerX = canvas.width / 2;
-            const centerY = canvas.width < 600 ? canvas.height * 0.35 : canvas.height * 0.45;
-            const separation = canvas.width < 600 ? 16 : 25; // Different separation for small screens
+            const centerY = canvas.width < 600 ? canvas.height * 0.35 : canvas.width < 1024 ? canvas.height * 0.5: canvas.height * 0.45; // Adjust y for tablets
+            const separation = canvas.width < 600 ? 16 : canvas.width < 1024 ? 20 : 25; // Different separation for tablets
+            //const centerY = canvas.width < 600 ? canvas.height * 0.35 : canvas.height * 0.45;
+            //const separation = canvas.width < 600 ? 16 : 25; // Different separation for small screens
             return {
                 x1: centerX - separation,
                 x2: centerX + separation,
